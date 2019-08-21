@@ -5,6 +5,7 @@ err = [
     {'code': 0, 'msg': '成功'},
     {'code': 1002, 'msg': '系统内部异常'},
     {'code': 1003, 'msg': '未查询到数据'},
+    {'code': 1004, 'msg': '请求参数错误'},
     {'code': 9999, 'msg': '未知错误'},
 ]
 
@@ -12,6 +13,7 @@ Error = enum(
     'OK',
     'INTERNAL_EXCEPT',
     'NO_MORE_DATA',
+    'INVALID_REQ_PARAM',
     'UNKNOWN',
 )
 
