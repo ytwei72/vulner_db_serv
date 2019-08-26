@@ -4,7 +4,7 @@ from common.utils.http_request import req_get_param_int, req_get_param
 from bson.son import SON
 import pymongo
 
-mongo_client = pymongo.MongoClient("mongodb://admin:123456@192.168.137.88:27017/")
+mongo_client = pymongo.MongoClient("mongodb://admin:123456@192.168.182.88:27017/")
 # cnvd 数据库
 cnvd_db = mongo_client["cnvd_share"]
 # cnvd 集合
@@ -81,3 +81,13 @@ def fix_stat(request):
     fixed_count = cnvd_col.find({"patchName": {'$regex': ".*"}}).count()
     result = {"fixed": fixed_count, "unfixed": unfixed_count}
     return app_ok_p(result)
+
+
+def vul_type_stat(request):
+    pipeline = [
+        {"$group": {"_id": "$vulType", "count": {"$sum": 1}}},
+        {"$sort": SON([("count", -1)])},
+    ]
+
+    result = cnvd_col.aggregate(pipeline)
+    return app_ok_p(list(result))
