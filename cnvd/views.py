@@ -46,9 +46,8 @@ def level_stat(request):
     return app_ok_p(list(result))
 
 
-def month_stat(request):
+def monthly_stat(request):
     time_type = req_get_param(request, 'time_type')
-    time_field = '';
     if time_type == 'submit':
         time_field = "$submitTime"
     elif time_type == 'open':
@@ -66,6 +65,25 @@ def month_stat(request):
     return app_ok_p(list(result))
 
 
+def yearly_stat(request):
+    time_type = req_get_param(request, 'time_type')
+    if time_type == 'submit':
+        time_field = "$submitTime"
+    elif time_type == 'open':
+        time_field = "$openTime"
+    else:
+        return app_err(Error.INVALID_REQ_PARAM)
+
+    pipeline = [
+        {"$project": {"year": {"$substr": [time_field, 0, 4]}}},
+        {"$group": {"_id": "$year", "year_count": {"$sum": 1}}},
+        {"$sort": SON([("_id", 1)])},
+    ]
+
+    result = cnvd_col.aggregate(pipeline)
+    return app_ok_p(list(result))
+
+
 def discoverer_stat(request):
     pipeline = [
         {"$group": {"_id": "$discovererName", "count": {"$sum": 1}}},
@@ -73,7 +91,13 @@ def discoverer_stat(request):
     ]
 
     result = cnvd_col.aggregate(pipeline)
-    return app_ok_p(list(result))
+    orig_stat = list(result)
+    max_count = req_get_param(request, 'max_count')
+    if max_count is not None and int(max_count) < len(orig_stat):
+        stat = orig_stat[0:int(max_count):1]
+    else:
+        stat = orig_stat
+    return app_ok_p({'total': len(orig_stat), 'count': len(stat), 'stat': stat})
 
 
 def fix_stat(request):

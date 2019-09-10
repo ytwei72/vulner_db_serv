@@ -21,5 +21,6 @@ from .views import test_view
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('test/', test_view.index, name='index'),
+    path('test/edb', test_view.fetch_exploit_db, name='testedb'),
     path('cnvd/', include('cnvd.urls')),
 ]
