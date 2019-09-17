@@ -23,4 +23,6 @@ urlpatterns = [
     path('test/', test_view.index, name='index'),
     path('test/edb', test_view.fetch_exploit_db, name='testedb'),
     path('cnvd/', include('cnvd.urls')),
+
+    path('account-manage/', include('account_manage.urls')),
 ]

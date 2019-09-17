@@ -1,14 +1,15 @@
 from common.response import app_ok_p, app_err_p, app_ok, app_err
 from common.error_code import Error
 from common.utils.http_request import req_get_param_int, req_get_param
-from bson.son import SON
-import pymongo
+import common.config
 
-mongo_client = pymongo.MongoClient("mongodb://admin:123456@192.168.182.88:27017/")
+from bson.son import SON
+
+mongo_client = common.config.g_mongo_client
 # cnvd 数据库
-cnvd_db = mongo_client["cnvd_share"]
+cnvd_db = common.config.g_cnvd_db
 # cnvd 集合
-cnvd_col = cnvd_db["cnvd_share"]
+cnvd_col = common.config.g_cnvd_col
 
 
 def index(request):
