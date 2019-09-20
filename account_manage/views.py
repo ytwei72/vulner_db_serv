@@ -8,12 +8,6 @@ from account_manage.accounts import Accounts
 
 from bson.son import SON
 
-mongo_client = common.config.g_mongo_client
-# 系统管理数据库
-sys_manage_db = common.config.g_sys_manage_db
-# 账户集合
-accounts_col = common.config.g_accounts_col
-
 
 def register_account(request):
     params = req_post_param_dict(request)

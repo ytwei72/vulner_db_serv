@@ -6,9 +6,6 @@ from common.utils.general import SysUtils
 from account_manage.account_status import status, Acc_Status
 from account_manage.account_role import role, Acc_Role
 
-mongo_client = common.config.g_mongo_client
-# 系统管理数据库
-sys_manage_db = common.config.g_sys_manage_db
 # 账户集合
 accounts_col = common.config.g_accounts_col
 

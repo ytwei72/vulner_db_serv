@@ -25,4 +25,5 @@ urlpatterns = [
     path('cnvd/', include('cnvd.urls')),
 
     path('account-manage/', include('account_manage.urls')),
+    path('edb/', include('edb.urls')),
 ]

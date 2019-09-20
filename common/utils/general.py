@@ -39,6 +39,15 @@ class SysUtils:
                 dest_dict[key] = ''
         return dest_dict
 
+    @staticmethod
+    def grid_out_to_dict(grid_out):
+        if grid_out is None:
+            return None
+        dest_dict = {'filename': grid_out.filename, 'aliases': grid_out.aliases[0],
+                     'content_type': grid_out.content_type, 'length': grid_out.length, 'name': grid_out.name}
+        # dest_dict['content'] = grid_out.read()
+        return dest_dict
+
 
 class TimeEncoder(json.JSONEncoder):
     def default(self, obj):

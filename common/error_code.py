@@ -11,6 +11,9 @@ err = [
     {'code': 1007, 'msg': '账户密码校验失败'},
     {'code': 1008, 'msg': '账户密码已锁定'},
     {'code': 1009, 'msg': '创建账户失败'},
+    {'code': 1010, 'msg': '参数越界'},
+    {'code': 1011, 'msg': '找不到指定的漏洞利用方法'},
+    {'code': 1012, 'msg': '查询失败'},
     {'code': 9999, 'msg': '未知错误'},
 ]
 
@@ -24,6 +27,9 @@ Error = enum(
     'FAIL_VERIFY_PASSWORD',
     'PASSWORD_LOCKED',
     'FAIL_CREATE_ACC',
+    'OUT_OF_BOUND',
+    'EDB_METHOD_NOT_FOUND',
+    'FAIL_QUERY',
     'UNKNOWN',
 )
 

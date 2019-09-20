@@ -1,4 +1,5 @@
 import pymongo
+from gridfs import GridFS
 
 # mongo-db客户端
 g_mongo_client = pymongo.MongoClient("mongodb://admin:123456@192.168.182.88:27017/")
@@ -18,4 +19,11 @@ g_exploit_db = g_mongo_client["exploit_db"]
 # 漏洞利用信息集合
 g_edb_info_col = g_exploit_db["exploit_info"]
 # 漏洞利用方法文件存储桶
-g_edb_method_bucket = g_exploit_db["exploit_methods"]
+g_edb_method_fs = GridFS(g_exploit_db, collection='exploit_methods')
+
+# edb 数据库子集
+g_exploit_db_tiny = g_mongo_client["exploit_db_tiny"]
+# 漏洞利用信息集合-子集
+g_edb_info_col_tiny = g_exploit_db_tiny["exploit_info_tiny"]
+# 漏洞利用方法文件存储桶-子集
+g_edb_method_fs_tiny = GridFS(g_exploit_db_tiny, collection='exploit_methods_tiny')

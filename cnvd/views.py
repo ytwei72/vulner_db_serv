@@ -3,11 +3,12 @@ from common.error_code import Error
 from common.utils.http_request import req_get_param_int, req_get_param
 import common.config
 
+from cnvd.cnvd_db import CnvdDB
+
+cnvd_db = CnvdDB()
+
 from bson.son import SON
 
-mongo_client = common.config.g_mongo_client
-# cnvd 数据库
-cnvd_db = common.config.g_cnvd_db
 # cnvd 集合
 cnvd_col = common.config.g_cnvd_col
 
@@ -16,24 +17,23 @@ def index(request):
     return app_ok_p("Hello, you're at the CNVD index.")
 
 
-def retrieve(request):
-    return app_err_p(Error.INTERNAL_EXCEPT, "Hello, world. You're at the CNVD index.")
+def query(request):
+    offset = req_get_param_int(request, 'offset')
+    count = req_get_param_int(request, 'count')
+    payload = cnvd_db.query(offset, count)
+    if payload is None:
+        return app_err(Error.FAIL_QUERY)
+    else:
+        return app_ok_p(payload)
 
 
-def fetch(request):
-    # CNVD的漏洞数据总数
-    total = cnvd_col.count()
-
-    # 分页查询
+def query_page(request):
     page_id = req_get_param_int(request, 'page_id')
     page_size = req_get_param_int(request, 'page_size')
-    # result = cnvd_col.find({"number": {'$exists': True}}, {'_id': 0}).skip(page_id * page_size).limit(page_size)
-    result = cnvd_col.find({}, {'_id': 0}).skip(page_id * page_size).limit(page_size)
-    if result.count() == 0:
-        payload = {'total': total, 'page_id': page_id, 'page_size': page_size, 'coll': {}}
-        return app_err_p(Error.NO_MORE_DATA, payload)
+    payload = cnvd_db.query_page(page_id, page_size)
+    if payload is None:
+        return app_err(Error.FAIL_QUERY)
     else:
-        payload = {'total': total, 'page_id': page_id, 'page_size': page_size, 'coll': list(result)}
         return app_ok_p(payload)
 
 
