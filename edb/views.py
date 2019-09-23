@@ -8,6 +8,7 @@ from common.utils.general import SysUtils
 from edb.exploitdb import ExploitDB
 from edb.exploit_methods import ExploitMethods
 
+import pymongo
 from bson.son import SON
 
 exploit_db = ExploitDB()
@@ -52,15 +53,80 @@ def search(request):
 
 
 def add(request):
-    return
+    edb_id = req_post_param(request, "edb_id")
+    title = req_post_param(request, "title")
+    author = req_post_param(request, "author")
+    type = req_post_param(request, "type")
+    platform = req_post_param(request, "platform")
+
+    # 检查id是否符合要求，包括取值范围和是否冲突（edb_id需要唯一）
+    suggest_edb_id = exploit_db.get_suggest_edb_id(edb_id)
+    if suggest_edb_id != edb_id:
+        return app_err_p(Error.INVALID_EDB_ID, {'suggest_edb_id': suggest_edb_id})
+
+    # with common.config.g_mongo_client.start_session(causal_consistency=True) as session:
+    #     """事物必须在session下执行,with保证了session的正常关闭"""
+    # with session.start_transaction():
+    #     """一旦出现异常会自动调用session.abort_transaction()"""
+    # 获取各字段的索引号，如果是新值，则添加一条新索引，并返回新的id号
+    author_id = exploit_db.fetch_field_id('author', author)
+    type_id = exploit_db.fetch_field_id('type', type)
+    platform_id = exploit_db.fetch_field_id('platform', platform)
+
+    # 组装漏洞信息，并添加
+    item = {'description': [edb_id, title], 'date_published': SysUtils.get_now_time().strftime('%Y-%m-%d'),
+            'verified': 0, 'port': 0,
+            'author': {'id': author_id, 'name': author}, 'type': {'id': type_id, 'name': type},
+            'platform': {'id': platform_id, 'platform': platform}, 'edb_id': edb_id}
+    result = exploit_db.add(item)
+    # 本版本不检查成功与否
+    return app_ok()
 
 
 def update(request):
-    return
+    edb_id = req_post_param(request, "edb_id")
+    title = req_post_param(request, "title")
+    author = req_post_param(request, "author")
+    type = req_post_param(request, "type")
+    platform = req_post_param(request, "platform")
+
+    # edb_id不存在，表示没有可以更新的漏洞信息条目
+    if not exploit_db.exist_edb_id(edb_id):
+        return app_err(Error.EDB_ID_NOT_FOUND)
+
+    # 获取各字段的索引号，如果是新值，则添加一条新索引，并返回新的id号
+    author_id = exploit_db.fetch_field_id('author', author)
+    type_id = exploit_db.fetch_field_id('type', type)
+    platform_id = exploit_db.fetch_field_id('platform', platform)
+
+    # 组装漏洞信息，并更新
+    item = {'description': [edb_id, title], 'author': {'id': author_id, 'name': author},
+            'type': {'id': type_id, 'name': type}, 'platform': {'id': platform_id, 'platform': platform}}
+    result = exploit_db.update(edb_id, item)
+    # 本版本不检查成功与否
+    return app_ok()
 
 
 def delete(request):
-    return
+    edb_id = req_get_param(request, "edb_id")
+    if int(edb_id) < exploit_db.get_user_defined_id_base_int():
+        return app_err_p(Error.NEED_USER_DEFINED_EDB_ID,
+                         {'user_defined_id_base': exploit_db.get_user_defined_id_base()})
+
+    # edb_id不存在，表示没有可以删除的漏洞信息条目
+    if not exploit_db.exist_edb_id(edb_id):
+        return app_err(Error.EDB_ID_NOT_FOUND)
+    result = exploit_db.delete(edb_id)
+    # 本版本不检查成功与否
+    return app_ok()
+
+
+def query_type(request):
+    return app_ok_p(exploit_db.query_type())
+
+
+def query_platform(request):
+    return app_ok_p(exploit_db.query_platform())
 
 
 def methods_query(request):

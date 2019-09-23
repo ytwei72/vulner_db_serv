@@ -11,6 +11,8 @@ urlpatterns = [
     path('add', views.add, name='edb_add'),
     path('update', views.update, name='edb_update'),
     path('delete', views.delete, name='edb_delete'),
+    path('query-type', views.query_type, name='edb_query_type'),
+    path('query-platform', views.query_platform, name='edb_query_platform'),
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     # 漏洞利用方法

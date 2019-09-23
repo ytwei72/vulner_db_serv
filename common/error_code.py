@@ -14,6 +14,10 @@ err = [
     {'code': 1010, 'msg': '参数越界'},
     {'code': 1011, 'msg': '找不到指定的漏洞利用方法'},
     {'code': 1012, 'msg': '查询失败'},
+    {'code': 1013, 'msg': '漏洞信息ID号已存在'},
+    {'code': 1014, 'msg': '找不到指定ID的漏洞信息'},
+    {'code': 1015, 'msg': '漏洞信息ID号不符合要求'},
+    {'code': 1016, 'msg': '需要输入用户自定义的漏洞信息ID号'},
     {'code': 9999, 'msg': '未知错误'},
 ]
 
@@ -30,6 +34,10 @@ Error = enum(
     'OUT_OF_BOUND',
     'EDB_METHOD_NOT_FOUND',
     'FAIL_QUERY',
+    'EDB_ID_EXIST',
+    'EDB_ID_NOT_FOUND',
+    'INVALID_EDB_ID',
+    'NEED_USER_DEFINED_EDB_ID',
     'UNKNOWN',
 )
 
