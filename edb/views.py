@@ -4,6 +4,7 @@ from common.utils.http_request import req_get_param_int, req_get_param, req_post
     req_post_param_dict
 import common.config
 from common.utils.general import SysUtils
+from common.utils.strutil import StrUtils
 
 from edb.exploitdb import ExploitDB
 from edb.exploit_pocs import ExploitPocs
@@ -29,6 +30,14 @@ def query(request):
     docs = exploit_db.query(offset, count)
     return app_ok_p({'total': total, 'count': len(docs), 'items': docs})
 
+def fetch(request):
+    edb_id = req_get_param(request, 'edb_id')
+    if StrUtils.is_blank(edb_id):
+        return app_err(Error.INVALID_REQ_PARAM)
+    doc = exploit_db.fetch(edb_id)
+    if doc is None:
+        return app_err(Error.EDB_ID_NOT_FOUND)
+    return app_ok_p(doc)
 
 def search(request):
     offset = req_get_param_int(request, 'offset')
@@ -90,8 +99,7 @@ def update(request):
 
     # 只有定制的漏洞信息才能进行更新操作
     if not exploit_db.custom_edb_id(edb_id):
-        return app_err_p(Error.NEED_CUSTOM_EDB_ID,
-                         {'custom_id_base': exploit_db.get_custom_id_base()})
+        return exploit_db.err_not_custom()
 
     # edb_id不存在，表示没有可以更新的漏洞信息条目
     if not exploit_db.exist_edb_id(edb_id):
@@ -113,8 +121,7 @@ def update(request):
 def delete(request):
     edb_id = req_get_param(request, "edb_id")
     if not exploit_db.custom_edb_id(edb_id):
-        return app_err_p(Error.NEED_CUSTOM_EDB_ID,
-                         {'custom_id_base': exploit_db.get_custom_id_base()})
+        return exploit_db.err_not_custom()
 
     # edb_id不存在，表示没有可以删除的漏洞信息条目
     if not exploit_db.exist_edb_id(edb_id):
@@ -151,10 +158,88 @@ def poc_fetch(request):
     edb_id = req_get_param(request, 'edb_id')
     item = edb_pocs.fetch(edb_id)
     if item is None:
-        return app_err(Error.EDB_METHOD_NOT_FOUND)
+        return app_err(Error.EDB_POC_NOT_FOUND)
     return app_ok_p(item)
 
 
 def poc_add(request):
+    edb_id = req_post_param(request, 'edb_id')
+    alias = req_post_param(request, 'alias')
+    content = req_post_param(request, 'content')
+    # 这三个参数都是POC的基本参数，不能为空
+    if StrUtils.is_blank(edb_id) or StrUtils.is_blank(alias) or StrUtils.is_blank(content):
+        return app_err(Error.INVALID_REQ_PARAM)
+
+    # 只有定制漏洞才能添加POC
+    if not exploit_db.custom_edb_id(edb_id):
+        return exploit_db.err_not_custom()
+
+    # edb_id不存在，表示没有可以添加POC的漏洞信息条目
+    if not exploit_db.exist_edb_id(edb_id):
+        return app_err(Error.EDB_ID_NOT_FOUND)
+
+    edb_pocs.add(edb_id, alias, content)
+
+    return app_ok()
+
+
+def poc_update(request):
+    edb_id = req_post_param(request, 'edb_id')
+    alias = req_post_param(request, 'alias')
+    content = req_post_param(request, 'content')
+    # 这三个参数都是POC的基本参数，不能为空
+    if StrUtils.is_blank(edb_id) or StrUtils.is_blank(alias) or StrUtils.is_blank(content):
+        return app_err(Error.INVALID_REQ_PARAM)
+
+    # 只有定制漏洞才能添加POC
+    if not exploit_db.custom_edb_id(edb_id):
+        return exploit_db.err_not_custom()
+
+    # edb_id不存在，表示没有可以添加POC的漏洞信息条目
+    if not exploit_db.exist_edb_id(edb_id):
+        return app_err(Error.EDB_ID_NOT_FOUND)
+
+    # 更新POC
+    edb_pocs.update(edb_id, alias, content)
+    return app_ok()
+
+
+def poc_delete(request):
     edb_id = req_get_param(request, 'edb_id')
-    return
+    if StrUtils.is_blank(edb_id):
+        return app_err(Error.INVALID_REQ_PARAM)
+
+    # 删除POC
+    if not edb_pocs.delete(edb_id):
+        return app_err(Error.EDB_POC_NOT_FOUND)
+
+    return app_ok()
+
+
+def poc_search(request):
+    offset = req_get_param_int(request, 'offset')
+    count = req_get_param_int(request, 'count')
+    value = req_get_param(request, 'value')
+
+    # 查找利用信息
+    result_cursor = exploit_db.search('db', value)
+    item_list = list(result_cursor)
+
+    # 获取信息总数，并判断指定偏移量是否越界
+    total = len(item_list)
+    if total == 0 or offset >= total:
+        return app_err_p(Error.NO_MORE_DATA, {'total': total, 'count': 0})
+
+    # 读取指定位置和数量的利用信息
+    if count > total - offset:
+        count = total - offset
+    item_list = item_list[offset: offset + count]
+
+    # 查询poc信息，添加到漏洞信息中
+    # poc_list = []
+    for item in item_list:
+        poc = edb_pocs.fetch_no_content(item['edb_id'])
+        item['poc'] = poc
+        # poc_list.append(poc)
+    return app_ok_p({'total': total, 'count': len(item_list), 'items': item_list})
+    # return app_ok()

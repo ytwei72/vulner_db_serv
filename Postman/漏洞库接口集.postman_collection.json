@@ -323,7 +323,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/edb/query?offset=44221&count=3",
+							"raw": "{{base_url}}/edb/query?offset=1&count=1",
 							"host": [
 								"{{base_url}}"
 							],
@@ -334,12 +334,12 @@
 							"query": [
 								{
 									"key": "offset",
-									"value": "44221",
+									"value": "1",
 									"description": "分页查询的起始位置"
 								},
 								{
 									"key": "count",
-									"value": "3",
+									"value": "1",
 									"description": "要查询的数量"
 								}
 							]
@@ -374,7 +374,8 @@
 								},
 								{
 									"key": "field",
-									"value": "db"
+									"value": "db",
+									"description": "可选：'os', 'service', 'db', 'PLC'"
 								},
 								{
 									"key": "value",
@@ -386,18 +387,18 @@
 					"response": []
 				},
 				{
-					"name": "11.3 查询利用方法",
+					"name": "11.3 查询POC",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/edb/methods/query?offset=1&count=3",
+							"raw": "{{base_url}}/edb/poc/query?offset=1&count=3",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"edb",
-								"methods",
+								"poc",
 								"query"
 							],
 							"query": [
@@ -417,24 +418,24 @@
 					"response": []
 				},
 				{
-					"name": "11.4 读取指定edb-id的利用方法",
+					"name": "11.4 读取指定edb-id的POC",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/edb/methods/fetch?edb_id=111",
+							"raw": "{{base_url}}/edb/poc/fetch?edb_id=15956",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"edb",
-								"methods",
+								"poc",
 								"fetch"
 							],
 							"query": [
 								{
 									"key": "edb_id",
-									"value": "111"
+									"value": "15956"
 								}
 							]
 						}
@@ -456,11 +457,6 @@
 						"body": {
 							"mode": "urlencoded",
 							"urlencoded": [
-								{
-									"key": "edb_id",
-									"value": "900000",
-									"type": "text"
-								},
 								{
 									"key": "title",
 									"value": "Wordpress 5.2.3 - Cross-Site Host Modification",
@@ -540,7 +536,7 @@
 							{
 								"key": "Content-Type",
 								"name": "Content-Type",
-								"value": "application/x-www-form-urlencoded",
+								"value": "text/plain",
 								"type": "text"
 							}
 						],
@@ -549,7 +545,7 @@
 							"urlencoded": [
 								{
 									"key": "edb_id",
-									"value": "200000",
+									"value": "90000",
 									"type": "text"
 								},
 								{
@@ -564,24 +560,29 @@
 								},
 								{
 									"key": "type",
-									"value": "webapps1",
+									"value": "webapps2",
 									"type": "text"
 								},
 								{
 									"key": "platform",
-									"value": "PHP1",
+									"value": "PHP2",
 									"type": "text"
 								}
-							]
+							],
+							"options": {
+								"raw": {
+									"language": "text"
+								}
+							}
 						},
 						"url": {
-							"raw": "{{base_url}}/edb/add",
+							"raw": "{{base_url}}/edb/update",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"edb",
-								"add"
+								"update"
 							]
 						}
 					},
@@ -593,7 +594,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/edb/delete?edb_id=111",
+							"raw": "{{base_url}}/edb/delete?edb_id=900000",
 							"host": [
 								"{{base_url}}"
 							],
@@ -604,7 +605,182 @@
 							"query": [
 								{
 									"key": "edb_id",
-									"value": "111"
+									"value": "900000"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "11.10 添加漏洞的POC",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "edb_id",
+									"value": "111",
+									"type": "text"
+								},
+								{
+									"key": "alias",
+									"value": "Todor Donev1.c",
+									"type": "text"
+								},
+								{
+									"key": "content",
+									"value": "webapps1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/edb/poc/add",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"edb",
+								"poc",
+								"add"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "11.11 更新漏洞的POC",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "edb_id",
+									"value": "900002",
+									"type": "text"
+								},
+								{
+									"key": "alias",
+									"value": "Todor Donev1.c",
+									"type": "text"
+								},
+								{
+									"key": "content",
+									"value": "webapps1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/edb/poc/update",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"edb",
+								"poc",
+								"update"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "11.12 删除漏洞POC",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/edb/poc/delete?edb_id=900002",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"edb",
+								"poc",
+								"delete"
+							],
+							"query": [
+								{
+									"key": "edb_id",
+									"value": "900002"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "11.13 模糊查询漏洞POC",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/edb/poc/search?offset=0&count=2&value=linux",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"edb",
+								"poc",
+								"search"
+							],
+							"query": [
+								{
+									"key": "offset",
+									"value": "0"
+								},
+								{
+									"key": "count",
+									"value": "2"
+								},
+								{
+									"key": "value",
+									"value": "linux"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "11.14 获取指定ID漏洞信息",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/edb/fetch?edb_id=111",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"edb",
+								"fetch"
+							],
+							"query": [
+								{
+									"key": "edb_id",
+									"value": "111",
+									"description": "要查询的数量"
 								}
 							]
 						}

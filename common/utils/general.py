@@ -1,6 +1,7 @@
 from dateutil.relativedelta import relativedelta
 import json
 from datetime import date, datetime, timedelta
+import os.path
 
 
 def enum(*args):
@@ -47,6 +48,47 @@ class SysUtils:
                      'content_type': grid_out.content_type, 'length': grid_out.length, 'name': grid_out.name}
         # dest_dict['content'] = grid_out.read()
         return dest_dict
+
+    @staticmethod
+    def match_convert(template, input):
+        temp_src = []
+        temp_dest = []
+        for item in template:
+            temp_src.append(item[0])
+            temp_dest.append(item[1])
+        try:
+            index = temp_src.index(input)
+        except ValueError:
+            return None
+        else:
+            return temp_dest[index]
+
+    @staticmethod
+    def parse_file_suffix(file_path):
+        parsed = os.path.splitext(file_path)
+        name = parsed[0]
+        suffix = parsed[1].lstrip('.').lower()
+        return suffix
+
+    @staticmethod
+    def parse_file_type(file_path):
+        suffix = SysUtils.parse_file_suffix(file_path)
+        template = [['as', 'Action Script'], ['asc', 'Active Server Pages'], ['asm', 'ASM'],
+                    ['asp', 'Active Server Pages'], ['bat', 'Batch'], ['c', 'C'], ['cfm', 'ColdFusion Markup'],
+                    ['cpp', 'C++'], ['cob', 'COBOL'], ['cs', 'C#'], ['delphi', 'delphi'], ['docx', 'Word'],
+                    ['eml', 'Email'], ['exe', 'Execute'], ['go', 'Golang'], ['gz', 'gzip'], ['htm', 'html'],
+                    ['html', 'html'], ['ics', 'Calendar'], ['java', 'java'], ['js', 'Java Script'],
+                    ['jsp', 'Java Server Page'], ['mid', 'MIDI'], ['md', 'Mark Down'], ['nasl', 'Nessus Script'],
+                    ['nasm', 'ASM'], ['nse', 'Nmap Script'], ['pas', 'Pascal'], ['pdf', 'PDF'], ['php', 'PHP'],
+                    ['pl', 'Perl'], ['pm', 'Perl Module'], ['py', 'python'], ['rar', 'rar'], ['rb', 'ruby'],
+                    ['s', 'ASM'], ['sh', 'Shell Script'], ['sql', 'SQL'], ['sys', 'system'], ['tcsh', 'TCSH Script'],
+                    ['txt', 'Text'], ['vb', 'Visual Basic'], ['vbs', 'VB Script'], ['wsf', 'Windows Script'],
+                    ['xml', 'XML'], ['xhtml', 'XML html'], ['xsl', 'Excel'], ['zip', 'zip'], ]
+        # template = [['pdf', 'PDF'], ]
+        type = SysUtils.match_convert(template, suffix)
+        if type is None:
+            type = 'unknown'
+        return type
 
 
 class TimeEncoder(json.JSONEncoder):
