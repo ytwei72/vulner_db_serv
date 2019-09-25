@@ -18,6 +18,6 @@ urlpatterns = [
     # 漏洞利用方法
 
     # 漏洞利用方法的查询、读取
-    path('methods/query', views.methods_query, name='edb_methods_query'),
-    path('methods/fetch', views.methods_fetch, name='edb_methods_fetch'),
+    path('poc/query', views.poc_query, name='edb_poc_query'),
+    path('poc/fetch', views.poc_fetch, name='edb_poc_fetch'),
 ]

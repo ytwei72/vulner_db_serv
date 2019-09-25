@@ -6,13 +6,13 @@ import common.config
 from common.utils.general import SysUtils
 
 from edb.exploitdb import ExploitDB
-from edb.exploit_methods import ExploitMethods
+from edb.exploit_pocs import ExploitPocs
 
 import pymongo
 from bson.son import SON
 
 exploit_db = ExploitDB()
-edb_methods = ExploitMethods()
+edb_pocs = ExploitPocs()
 
 
 def query(request):
@@ -53,16 +53,14 @@ def search(request):
 
 
 def add(request):
-    edb_id = req_post_param(request, "edb_id")
+    # edb_id = req_post_param(request, "edb_id")
     title = req_post_param(request, "title")
     author = req_post_param(request, "author")
     type = req_post_param(request, "type")
     platform = req_post_param(request, "platform")
 
-    # 检查id是否符合要求，包括取值范围和是否冲突（edb_id需要唯一）
-    suggest_edb_id = exploit_db.get_suggest_edb_id(edb_id)
-    if suggest_edb_id != edb_id:
-        return app_err_p(Error.INVALID_EDB_ID, {'suggest_edb_id': suggest_edb_id})
+    # 获取可用的edb_id，内部检查取值范围和是否冲突（edb_id需要唯一）
+    edb_id = exploit_db.get_suggest_edb_id(None)
 
     # with common.config.g_mongo_client.start_session(causal_consistency=True) as session:
     #     """事物必须在session下执行,with保证了session的正常关闭"""
@@ -75,12 +73,12 @@ def add(request):
 
     # 组装漏洞信息，并添加
     item = {'description': [edb_id, title], 'date_published': SysUtils.get_now_time().strftime('%Y-%m-%d'),
-            'verified': 0, 'port': 0,
+            'verified': 0, 'port': 0, 'customized': 1,
             'author': {'id': author_id, 'name': author}, 'type': {'id': type_id, 'name': type},
             'platform': {'id': platform_id, 'platform': platform}, 'edb_id': edb_id}
     result = exploit_db.add(item)
     # 本版本不检查成功与否
-    return app_ok()
+    return app_ok_p({'edb_id': edb_id, 'customized': 1, 'date_published': item['date_published']})
 
 
 def update(request):
@@ -89,6 +87,11 @@ def update(request):
     author = req_post_param(request, "author")
     type = req_post_param(request, "type")
     platform = req_post_param(request, "platform")
+
+    # 只有定制的漏洞信息才能进行更新操作
+    if not exploit_db.custom_edb_id(edb_id):
+        return app_err_p(Error.NEED_CUSTOM_EDB_ID,
+                         {'custom_id_base': exploit_db.get_custom_id_base()})
 
     # edb_id不存在，表示没有可以更新的漏洞信息条目
     if not exploit_db.exist_edb_id(edb_id):
@@ -109,9 +112,9 @@ def update(request):
 
 def delete(request):
     edb_id = req_get_param(request, "edb_id")
-    if int(edb_id) < exploit_db.get_user_defined_id_base_int():
-        return app_err_p(Error.NEED_USER_DEFINED_EDB_ID,
-                         {'user_defined_id_base': exploit_db.get_user_defined_id_base()})
+    if not exploit_db.custom_edb_id(edb_id):
+        return app_err_p(Error.NEED_CUSTOM_EDB_ID,
+                         {'custom_id_base': exploit_db.get_custom_id_base()})
 
     # edb_id不存在，表示没有可以删除的漏洞信息条目
     if not exploit_db.exist_edb_id(edb_id):
@@ -129,24 +132,29 @@ def query_platform(request):
     return app_ok_p(exploit_db.query_platform())
 
 
-def methods_query(request):
+def poc_query(request):
     offset = req_get_param_int(request, 'offset')
     count = req_get_param_int(request, 'count')
 
     # 获取信息总数
-    total = edb_methods.count()
+    total = edb_pocs.count()
     # 指定偏移量越界，则报错
     if offset >= total:
         return app_err_p(Error.NO_MORE_DATA, {'total': total, 'count': 0})
 
     # 读取利用方法数据
-    docs = edb_methods.query(offset, count)
+    docs = edb_pocs.query(offset, count)
     return app_ok_p({'total': total, 'count': len(docs), 'items': docs})
 
 
-def methods_fetch(request):
+def poc_fetch(request):
     edb_id = req_get_param(request, 'edb_id')
-    item = edb_methods.fetch(edb_id)
+    item = edb_pocs.fetch(edb_id)
     if item is None:
         return app_err(Error.EDB_METHOD_NOT_FOUND)
     return app_ok_p(item)
+
+
+def poc_add(request):
+    edb_id = req_get_param(request, 'edb_id')
+    return
