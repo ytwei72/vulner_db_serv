@@ -387,29 +387,23 @@
 					"response": []
 				},
 				{
-					"name": "11.3 查询POC",
+					"name": "11.3 获取指定ID漏洞信息",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/edb/poc/query?offset=1&count=3",
+							"raw": "{{base_url}}/edb/fetch?edb_id=111",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"edb",
-								"poc",
-								"query"
+								"fetch"
 							],
 							"query": [
 								{
-									"key": "offset",
-									"value": "1",
-									"description": "分页查询的起始位置"
-								},
-								{
-									"key": "count",
-									"value": "3",
+									"key": "edb_id",
+									"value": "111",
 									"description": "要查询的数量"
 								}
 							]
@@ -418,24 +412,23 @@
 					"response": []
 				},
 				{
-					"name": "11.4 读取指定edb-id的POC",
+					"name": "11.4 删除指定edb-id的漏洞信息",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/edb/poc/fetch?edb_id=15956",
+							"raw": "{{base_url}}/edb/delete?edb_id=900000",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"edb",
-								"poc",
-								"fetch"
+								"delete"
 							],
 							"query": [
 								{
 									"key": "edb_id",
-									"value": "15956"
+									"value": "900000"
 								}
 							]
 						}
@@ -589,23 +582,39 @@
 					"response": []
 				},
 				{
-					"name": "11.9 删除指定edb-id的漏洞信息",
+					"name": "11.9 导出漏洞信息XLS",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/edb/delete?edb_id=900000",
+							"raw": "{{base_url}}/edb/exportxls?edb_id=900002&id_list=5,20,23,32,48,56,66,69,70,76,81,92,97",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"edb",
-								"delete"
+								"exportxls"
 							],
 							"query": [
 								{
 									"key": "edb_id",
-									"value": "900000"
+									"value": "900002"
+								},
+								{
+									"key": "id_list",
+									"value": "5,20,23,32,48,56,66,69,70,76,81,92,97"
+								},
+								{
+									"key": "id_from",
+									"value": "21",
+									"description": "速度较慢，关闭不用",
+									"disabled": true
+								},
+								{
+									"key": "id_to",
+									"value": "33000",
+									"description": "速度较慢，关闭不用",
+									"disabled": true
 								}
 							]
 						}
@@ -613,7 +622,109 @@
 					"response": []
 				},
 				{
-					"name": "11.10 添加漏洞的POC",
+					"name": "11.10 获取漏洞最大ID号",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/edb/max-id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"edb",
+								"max-id"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "fb631168-a04c-46f1-8387-943cfecfe780",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "6afd7c0b-654b-4df6-a2cf-b2a4e50911b7",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "12. EDB-POC管理",
+			"item": [
+				{
+					"name": "12.1 查询POC",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/edb/poc/query?offset=1&count=3",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"edb",
+								"poc",
+								"query"
+							],
+							"query": [
+								{
+									"key": "offset",
+									"value": "1",
+									"description": "分页查询的起始位置"
+								},
+								{
+									"key": "count",
+									"value": "3",
+									"description": "要查询的数量"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "12.2 读取指定edb-id的POC",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/edb/poc/fetch?edb_id=900002",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"edb",
+								"poc",
+								"fetch"
+							],
+							"query": [
+								{
+									"key": "edb_id",
+									"value": "900002"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "12.3 添加漏洞的POC",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -629,7 +740,7 @@
 							"urlencoded": [
 								{
 									"key": "edb_id",
-									"value": "111",
+									"value": "900002",
 									"type": "text"
 								},
 								{
@@ -659,7 +770,7 @@
 					"response": []
 				},
 				{
-					"name": "11.11 更新漏洞的POC",
+					"name": "12.4 更新漏洞的POC",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -705,7 +816,7 @@
 					"response": []
 				},
 				{
-					"name": "11.12 删除漏洞POC",
+					"name": "12.5 删除漏洞POC",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -730,12 +841,12 @@
 					"response": []
 				},
 				{
-					"name": "11.13 模糊查询漏洞POC",
+					"name": "12.6 模糊查询漏洞POC",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/edb/poc/search?offset=0&count=2&value=linux",
+							"raw": "{{base_url}}/edb/poc/search?offset=0&count=2&value=oracle",
 							"host": [
 								"{{base_url}}"
 							],
@@ -755,7 +866,7 @@
 								},
 								{
 									"key": "value",
-									"value": "linux"
+									"value": "oracle"
 								}
 							]
 						}
@@ -763,24 +874,24 @@
 					"response": []
 				},
 				{
-					"name": "11.14 获取指定ID漏洞信息",
+					"name": "12.7 下载POC",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/edb/fetch?edb_id=111",
+							"raw": "{{base_url}}/edb/poc/download?edb_id=900002",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"edb",
-								"fetch"
+								"poc",
+								"download"
 							],
 							"query": [
 								{
 									"key": "edb_id",
-									"value": "111",
-									"description": "要查询的数量"
+									"value": "900002"
 								}
 							]
 						}
@@ -792,7 +903,7 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"id": "fb631168-a04c-46f1-8387-943cfecfe780",
+						"id": "5edf91af-b1ff-4d52-ba9f-d62f9939aa29",
 						"type": "text/javascript",
 						"exec": [
 							""
@@ -802,12 +913,94 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "6afd7c0b-654b-4df6-a2cf-b2a4e50911b7",
+						"id": "c4f2ff94-ae22-45e1-b3ed-552f3fe3687d",
 						"type": "text/javascript",
 						"exec": [
 							""
 						]
 					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "13. EDB统计",
+			"item": [
+				{
+					"name": "13.1 按发布年份统计",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/edb/stat/years",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"edb",
+								"stat",
+								"years"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "13.2 按是否验证统计",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/edb/stat/verified",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"edb",
+								"stat",
+								"verified"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "13.3 按platform平台统计",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/edb/stat/platform",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"edb",
+								"stat",
+								"platform"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "13.4 按type类型统计",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/edb/stat/type",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"edb",
+								"stat",
+								"type"
+							]
+						}
+					},
+					"response": []
 				}
 			],
 			"protocolProfileBehavior": {}

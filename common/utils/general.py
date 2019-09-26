@@ -15,6 +15,10 @@ class SysUtils:
         return datetime.now()
 
     @staticmethod
+    def get_now_time_str():
+        return SysUtils.get_now_time().strftime('%Y-%m-%d %H:%M:%S')
+
+    @staticmethod
     def get_time_delta_days(delta_days):
         now = datetime.now()
         new_time = now + timedelta(days=delta_days)

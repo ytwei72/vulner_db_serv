@@ -8,9 +8,14 @@ from common.utils.strutil import StrUtils
 
 from edb.exploitdb import ExploitDB
 from edb.exploit_pocs import ExploitPocs
+from edb.xls_utils import XlsUtils
 
 import pymongo
 from bson.son import SON
+from django.http import HttpResponse, FileResponse
+from django.utils.http import urlquote
+import xlrd
+import xlwt
 
 exploit_db = ExploitDB()
 edb_pocs = ExploitPocs()
@@ -243,3 +248,59 @@ def poc_search(request):
         # poc_list.append(poc)
     return app_ok_p({'total': total, 'count': len(item_list), 'items': item_list})
     # return app_ok()
+
+
+def poc_download(request):
+    edb_id = req_get_param(request, 'edb_id')
+    item = edb_pocs.fetch(edb_id)
+    if item is None:
+        return app_err(Error.EDB_POC_NOT_FOUND)
+
+    file_name = item['aliases']
+    response = HttpResponse(item['content'], content_type='application/octet-stream')
+    response['Content-Disposition'] = 'attachment;filename="%s"' % (urlquote(file_name))
+    return response
+
+
+def max_id(request):
+    max_id = exploit_db.max_edb_id()
+    return app_ok_p({'max_id': max_id})
+
+
+def export_excel(request):
+    id_list_str = req_get_param(request, 'id_list')
+    # ID号区间查询因为需要先在整个集合把edb_id转为整数，速度较慢，关闭不用
+    # id_from = req_get_param(request, 'id_from')
+    # id_to = req_get_param(request, 'id_to')
+
+    if id_list_str is not None:
+        id_list = id_list_str.split(',')
+        item_list = exploit_db.fetch_some(id_list)
+    # elif not StrUtils.is_blank(id_from) and not StrUtils.is_blank(id_to):
+    #     item_list = exploit_db.fetch_range(id_from, id_to)
+    else:
+        item_list = exploit_db.query_all()
+
+    file_name = XlsUtils.write_excel(item_list)
+    xls_file = open(file_name, "rb")
+    response = FileResponse(xls_file)
+    response['Content-Type'] = 'application/octet-stream'
+    response['Content-Disposition'] = 'attachment;filename="%s"' % file_name
+    return response
+
+
+def stat_verified(request):
+    return
+
+
+def stat_years(request):
+    return
+
+
+def stat_platform(request):
+    return
+
+
+def stat_type(request):
+    return
+
