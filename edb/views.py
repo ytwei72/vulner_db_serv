@@ -9,6 +9,7 @@ from common.utils.strutil import StrUtils
 from edb.exploitdb import ExploitDB
 from edb.exploit_pocs import ExploitPocs
 from edb.xls_utils import XlsUtils
+from edb.edb_stat import EdbStat
 
 import pymongo
 from bson.son import SON
@@ -19,6 +20,7 @@ import xlwt
 
 exploit_db = ExploitDB()
 edb_pocs = ExploitPocs()
+edb_stat = EdbStat()
 
 
 def query(request):
@@ -290,17 +292,21 @@ def export_excel(request):
 
 
 def stat_verified(request):
-    return
+    stat = edb_stat.verified_stat()
+    return app_ok_p(stat)
 
 
 def stat_years(request):
-    return
+    stat = edb_stat.years_stat()
+    return app_ok_p(stat)
 
 
 def stat_platform(request):
-    return
+    stat = edb_stat.platform_stat()
+    return app_ok_p(stat)
 
 
 def stat_type(request):
-    return
+    stat = edb_stat.type_stat()
+    return app_ok_p(stat)
 
