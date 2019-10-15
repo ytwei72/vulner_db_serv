@@ -17,6 +17,7 @@ from django.contrib import admin
 from django.urls import path, include
 
 from .views import test_view
+from .views import common_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,4 +27,6 @@ urlpatterns = [
 
     path('account-manage/', include('account_manage.urls')),
     path('edb/', include('edb.urls')),
+    path('set_user/', common_views.set_user, name='set_user'),
+    path('get_user/', common_views.get_user, name='get_user'),
 ]

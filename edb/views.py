@@ -5,6 +5,7 @@ from common.utils.http_request import req_get_param_int, req_get_param, req_post
 import common.config
 from common.utils.general import SysUtils
 from common.utils.strutil import StrUtils
+from common.syslog import SysLog
 
 from edb.exploitdb import ExploitDB
 from edb.exploit_pocs import ExploitPocs
@@ -35,6 +36,7 @@ def query(request):
 
     # 读取利用信息
     docs = exploit_db.query(offset, count)
+    SysLog.success('查询漏洞', '成功查询漏洞信息，查询到漏洞信息总数={}'.format(len(docs)))
     return app_ok_p({'total': total, 'count': len(docs), 'items': docs})
 
 def fetch(request):
@@ -43,7 +45,9 @@ def fetch(request):
         return app_err(Error.INVALID_REQ_PARAM)
     doc = exploit_db.fetch(edb_id)
     if doc is None:
+        SysLog.fail('提取漏洞', '没有提取到漏洞信息（ID={}）'.format(edb_id))
         return app_err(Error.EDB_ID_NOT_FOUND)
+    SysLog.success('提取漏洞', '成功提取漏洞信息（ID={}）'.format(edb_id))
     return app_ok_p(doc)
 
 def search(request):
@@ -65,6 +69,7 @@ def search(request):
     if count > total - offset:
         count = total - offset
     item_list = item_list[offset: offset + count]
+    SysLog.success('搜索漏洞', '成功搜索漏洞信息，查询到漏洞信息总数={}'.format(len(item_list)))
     return app_ok_p({'total': total, 'count': len(item_list), 'items': item_list})
 
 
@@ -94,6 +99,7 @@ def add(request):
             'platform': {'id': platform_id, 'platform': platform}, 'edb_id': edb_id}
     result = exploit_db.add(item)
     # 本版本不检查成功与否
+    SysLog.success('新建漏洞', '成功添加漏洞信息，漏洞ID={}'.format(edb_id))
     return app_ok_p({'edb_id': edb_id, 'customized': 1, 'date_published': item['date_published']})
 
 
@@ -106,10 +112,12 @@ def update(request):
 
     # 只有定制的漏洞信息才能进行更新操作
     if not exploit_db.custom_edb_id(edb_id):
+        SysLog.fail('更新漏洞', '更新漏洞（ID={}）失败，只有定制的漏洞信息才能进行更新操作。'.format(edb_id))
         return exploit_db.err_not_custom()
 
     # edb_id不存在，表示没有可以更新的漏洞信息条目
     if not exploit_db.exist_edb_id(edb_id):
+        SysLog.fail('更新漏洞', '更新漏洞失败，该漏洞（ID={}）不存在。'.format(edb_id))
         return app_err(Error.EDB_ID_NOT_FOUND)
 
     # 获取各字段的索引号，如果是新值，则添加一条新索引，并返回新的id号
@@ -122,19 +130,24 @@ def update(request):
             'type': {'id': type_id, 'name': type}, 'platform': {'id': platform_id, 'platform': platform}}
     result = exploit_db.update(edb_id, item)
     # 本版本不检查成功与否
+    SysLog.success('更新漏洞', '成功更新漏洞信息，漏洞ID={}'.format(edb_id))
     return app_ok()
 
 
 def delete(request):
     edb_id = req_get_param(request, "edb_id")
     if not exploit_db.custom_edb_id(edb_id):
+        SysLog.fail('删除漏洞', '删除漏洞（ID={}）失败，只有定制的漏洞信息才能进行删除操作。'.format(edb_id))
         return exploit_db.err_not_custom()
 
     # edb_id不存在，表示没有可以删除的漏洞信息条目
     if not exploit_db.exist_edb_id(edb_id):
+        SysLog.fail('删除漏洞', '删除漏洞失败，该漏洞（ID={}）不存在。'.format(edb_id))
         return app_err(Error.EDB_ID_NOT_FOUND)
     result = exploit_db.delete(edb_id)
+
     # 本版本不检查成功与否
+    SysLog.success('删除漏洞', '成功删除漏洞信息，漏洞ID={}'.format(edb_id))
     return app_ok()
 
 
@@ -158,6 +171,7 @@ def poc_query(request):
 
     # 读取利用方法数据
     docs = edb_pocs.query(offset, count)
+    SysLog.success('查询POC', '成功查询漏洞的POC，总数={}'.format(len(docs)))
     return app_ok_p({'total': total, 'count': len(docs), 'items': docs})
 
 
@@ -166,6 +180,7 @@ def poc_fetch(request):
     item = edb_pocs.fetch(edb_id)
     if item is None:
         return app_err(Error.EDB_POC_NOT_FOUND)
+    SysLog.success('提取POC', '成功提取漏洞的POC（漏洞ID={}）'.format(edb_id))
     return app_ok_p(item)
 
 
@@ -179,14 +194,16 @@ def poc_add(request):
 
     # 只有定制漏洞才能添加POC
     if not exploit_db.custom_edb_id(edb_id):
+        SysLog.fail('添加POC', '添加POC失败（漏洞ID={}）'.format(edb_id))
         return exploit_db.err_not_custom()
 
     # edb_id不存在，表示没有可以添加POC的漏洞信息条目
     if not exploit_db.exist_edb_id(edb_id):
+        SysLog.fail('添加POC', '添加POC失败（漏洞ID={}）'.format(edb_id))
         return app_err(Error.EDB_ID_NOT_FOUND)
 
     edb_pocs.add(edb_id, alias, content)
-
+    SysLog.success('添加POC', '成功添加漏洞的POC（漏洞ID={}）'.format(edb_id))
     return app_ok()
 
 
@@ -200,14 +217,17 @@ def poc_update(request):
 
     # 只有定制漏洞才能添加POC
     if not exploit_db.custom_edb_id(edb_id):
+        SysLog.fail('更新POC', '更新POC失败（漏洞ID={}）'.format(edb_id))
         return exploit_db.err_not_custom()
 
     # edb_id不存在，表示没有可以添加POC的漏洞信息条目
     if not exploit_db.exist_edb_id(edb_id):
+        SysLog.fail('更新POC', '更新POC失败（漏洞ID={}）'.format(edb_id))
         return app_err(Error.EDB_ID_NOT_FOUND)
 
     # 更新POC
     edb_pocs.update(edb_id, alias, content)
+    SysLog.success('更新POC', '成功更新漏洞的POC（漏洞ID={}）'.format(edb_id))
     return app_ok()
 
 
@@ -218,8 +238,10 @@ def poc_delete(request):
 
     # 删除POC
     if not edb_pocs.delete(edb_id):
+        SysLog.fail('删除POC', '删除POC失败（漏洞ID={}）'.format(edb_id))
         return app_err(Error.EDB_POC_NOT_FOUND)
 
+    SysLog.success('删除POC', '成功删除漏洞的POC（漏洞ID={}）'.format(edb_id))
     return app_ok()
 
 
@@ -248,8 +270,8 @@ def poc_search(request):
         poc = edb_pocs.fetch_no_content(item['edb_id'])
         item['poc'] = poc
         # poc_list.append(poc)
+    SysLog.success('搜索POC', '成功搜索POC文件，总数={}'.format(len(item_list)))
     return app_ok_p({'total': total, 'count': len(item_list), 'items': item_list})
-    # return app_ok()
 
 
 def poc_download(request):
@@ -261,6 +283,7 @@ def poc_download(request):
     file_name = item['aliases']
     response = HttpResponse(item['content'], content_type='application/octet-stream')
     response['Content-Disposition'] = 'attachment;filename="%s"' % (urlquote(file_name))
+    SysLog.success('下载POC', '成功下载POC文件，漏洞ID={}'.format(edb_id))
     return response
 
 
@@ -288,6 +311,7 @@ def export_excel(request):
     response = FileResponse(xls_file)
     response['Content-Type'] = 'application/octet-stream'
     response['Content-Disposition'] = 'attachment;filename="%s"' % file_name
+    SysLog.success('导出', '成功导出excel文件，漏洞ID={}'.format(id_list_str))
     return response
 
 
