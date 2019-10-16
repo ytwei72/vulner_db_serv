@@ -27,6 +27,9 @@
 
 7. 启动django项目
     建议采用uwsgi启动服务：
+        uwsgi --ini deploy/uwsgi.ini  (需要事先修改 uwsgi.ini)
+        停止uwsgi时采用 uwsgi --stop deploy/uwsgi.pid
+    或者采用：
         uwsgi --http :10091 --chdir /usr/local/deploy/pyweb/wwwroot --wsgi-file vulner_db_serv/wsgi.py --master --processes 4 --threads 2
     或者用python解释器直接启动django：
 	    python3 manage.py runserver 0.0.0.0:10091
