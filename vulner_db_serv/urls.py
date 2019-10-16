@@ -15,11 +15,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.views.static import serve
 
 from .views import test_view
 from .views import common_views
 
 urlpatterns = [
+    # url(r'^static/(?P<path>.)$', serve, {"document_root": settings.STATIC_ROOT})
     path('admin/', admin.site.urls),
     path('test/', test_view.index, name='index'),
     path('test/edb', test_view.fetch_exploit_db, name='testedb'),

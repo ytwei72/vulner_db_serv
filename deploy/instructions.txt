@@ -1,0 +1,60 @@
+
+说明：
+假设django项目在windows系统开发，python环境的命令是python和pip；部署到linux系统，命令是python3和pip3
+
+1. 安装python3和pip3
+
+2. 创建python3和pip3的符号链接
+
+3. django项目导出依赖
+	cd [django项目 目录]
+	pip freeze > deploy/dependencies.txt
+
+4. 安装virtualenv
+	pip3 install virtualenv
+
+5. 创建一个虚拟环境
+	virtualenv --python=/usr/bin/python3 pyweb
+	cd pyweb
+	mkdir wwwroot
+	cd wwwroot
+	拷贝django项目文件到wwwroot下
+
+6. 部署环境中安装项目依赖
+	在上述wwwroot目录下，执行：
+	    pip3 install -r deploy/dependencies.txt
+	    linux系统遇到需要pywin32的依赖时，跳过该依赖安装
+
+7. 启动django项目
+    建议采用uwsgi启动服务：
+        uwsgi --http :10091 --chdir /usr/local/deploy/pyweb/wwwroot --wsgi-file vulner_db_serv/wsgi.py --master --processes 4 --threads 2
+    或者用python解释器直接启动django：
+	    python3 manage.py runserver 0.0.0.0:10091
+
+附件:
+1. 升级SQLite
+	下载sqlite源码包安装:
+	wget http://www.sqlite.org/2019/sqlite-autoconf-3290000.tar.gz
+
+	解压:
+	tar zxvf sqlite-autoconf-3290000.tar.gz -C /usr/src/
+
+	编译安装:
+	cd /usr/src/sqlite-autoconf-3290000/
+	./configure --prefix=/usr/local/sqlite
+	make && make install
+
+	替换版本
+	mv /usr/bin/sqlite3 /usr/bin/sqlite3_old
+	cd /usr/local/sqlite/bin/
+	ln -s sqlite3 /usr/bin/sqlite3
+
+	共享库修改，注意sqlite的安装路径
+	vim /etc/profile
+	export LD_LIBRARY_PATH="/usr/local/sqlite/lib"
+
+	配置生效
+	source /etc/profile
+
+	查看sqlite版本信息
+	sqlite3 --version
