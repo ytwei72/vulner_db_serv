@@ -177,11 +177,12 @@ def poc_query(request):
 
 def poc_fetch(request):
     edb_id = req_get_param(request, 'edb_id')
+    doc = exploit_db.fetch(edb_id)
     item = edb_pocs.fetch(edb_id)
-    if item is None:
+    if item is None or doc is None:
         return app_err(Error.EDB_POC_NOT_FOUND)
     SysLog.success('提取POC', '成功提取漏洞的POC（漏洞ID={}）'.format(edb_id))
-    return app_ok_p(item)
+    return app_ok_p(dict(doc, **item))
 
 
 def poc_add(request):

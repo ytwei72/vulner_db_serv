@@ -20,13 +20,21 @@
 	cd wwwroot
 	拷贝django项目文件到wwwroot下
 
-6. 部署环境中安装项目依赖
+6. 进入虚拟环境
+    source pyweb/bin/activate  (pyweb是创建的虚拟环境名称)
+    退出环境
+    deactivate
+
+7. 部署环境中安装项目依赖
     （1）首先按照附录1的说明，升级系统的SQLite
 	（2）在上述wwwroot目录下，执行：
 	    pip3 install -r deploy/dependencies.txt
 	    linux系统遇到需要pywin32的依赖时，跳过该依赖安装
 
-7. 启动django项目
+8. 安装uwsgi
+    pip3 install uwsgi
+
+9. 启动django项目
     建议采用uwsgi启动服务：
         nohup uwsgi --ini deploy/uwsgi.ini &  (需要事先修改 uwsgi.ini)
         停止uwsgi时采用 uwsgi --stop deploy/uwsgi.pid
