@@ -21,20 +21,21 @@
 	拷贝django项目文件到wwwroot下
 
 6. 部署环境中安装项目依赖
-	在上述wwwroot目录下，执行：
+    （1）首先按照附录1的说明，升级系统的SQLite
+	（2）在上述wwwroot目录下，执行：
 	    pip3 install -r deploy/dependencies.txt
 	    linux系统遇到需要pywin32的依赖时，跳过该依赖安装
 
 7. 启动django项目
     建议采用uwsgi启动服务：
-        uwsgi --ini deploy/uwsgi.ini  (需要事先修改 uwsgi.ini)
+        nohup uwsgi --ini deploy/uwsgi.ini &  (需要事先修改 uwsgi.ini)
         停止uwsgi时采用 uwsgi --stop deploy/uwsgi.pid
     或者采用：
         uwsgi --http :10091 --chdir /usr/local/deploy/pyweb/wwwroot --wsgi-file vulner_db_serv/wsgi.py --master --processes 4 --threads 2
     或者用python解释器直接启动django：
 	    python3 manage.py runserver 0.0.0.0:10091
 
-附件:
+附录:
 1. 升级SQLite
 	下载sqlite源码包安装:
 	wget http://www.sqlite.org/2019/sqlite-autoconf-3290000.tar.gz
