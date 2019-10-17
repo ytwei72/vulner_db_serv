@@ -353,7 +353,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/edb/search?offset=0&count=13&field=db&value=oracle",
+							"raw": "{{base_url}}/edb/search?offset=0&count=13&value=新建",
 							"host": [
 								"{{base_url}}"
 							],
@@ -373,13 +373,8 @@
 									"description": "要查询的数量"
 								},
 								{
-									"key": "field",
-									"value": "db",
-									"description": "可选：'os', 'service', 'db', 'PLC'"
-								},
-								{
 									"key": "value",
-									"value": "oracle"
+									"value": "新建"
 								}
 							]
 						}
@@ -638,6 +633,45 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "11.11 查找指定范围漏洞信息",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/edb/filter?offset=0&count=3&field=db&value=linux",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"edb",
+								"filter"
+							],
+							"query": [
+								{
+									"key": "offset",
+									"value": "0",
+									"description": "分页查询的起始位置"
+								},
+								{
+									"key": "count",
+									"value": "3",
+									"description": "要查询的数量"
+								},
+								{
+									"key": "field",
+									"value": "db",
+									"description": "可选：'os', 'service', 'db', 'PLC'"
+								},
+								{
+									"key": "value",
+									"value": "linux"
+								}
+							]
+						}
+					},
+					"response": []
 				}
 			],
 			"event": [
@@ -846,7 +880,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/edb/poc/search?offset=0&count=2&value=oracle",
+							"raw": "{{base_url}}/edb/poc/search?offset=0&count=2&value=linux",
 							"host": [
 								"{{base_url}}"
 							],
@@ -866,7 +900,7 @@
 								},
 								{
 									"key": "value",
-									"value": "oracle"
+									"value": "linux"
 								}
 							]
 						}
@@ -1241,7 +1275,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/set_user?uuid=1111&account&name",
+							"raw": "{{base_url}}/set_user?uuid=222&account=&name=",
 							"host": [
 								"{{base_url}}"
 							],
@@ -1251,17 +1285,17 @@
 							"query": [
 								{
 									"key": "uuid",
-									"value": "1111",
+									"value": "222",
 									"description": "必需"
 								},
 								{
 									"key": "account",
-									"value": null,
+									"value": "",
 									"description": "可选"
 								},
 								{
 									"key": "name",
-									"value": null,
+									"value": "",
 									"description": "可选"
 								}
 							]

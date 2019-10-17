@@ -39,6 +39,7 @@ def query(request):
     SysLog.success('查询漏洞', '成功查询漏洞信息，查询到漏洞信息总数={}'.format(len(docs)))
     return app_ok_p({'total': total, 'count': len(docs), 'items': docs})
 
+
 def fetch(request):
     edb_id = req_get_param(request, 'edb_id')
     if StrUtils.is_blank(edb_id):
@@ -50,14 +51,39 @@ def fetch(request):
     SysLog.success('提取漏洞', '成功提取漏洞信息（ID={}）'.format(edb_id))
     return app_ok_p(doc)
 
-def search(request):
+
+def filter(request):
     offset = req_get_param_int(request, 'offset')
     count = req_get_param_int(request, 'count')
     field = req_get_param(request, 'field')
     value = req_get_param(request, 'value')
 
     # 查找利用信息
-    result_cursor = exploit_db.search(field, value)
+    result_cursor = exploit_db.filter(field, value)
+    if result_cursor is None:
+        return app_err(Error.INVALID_REQ_PARAM)
+    item_list = list(result_cursor)
+
+    # 获取信息总数，并判断指定偏移量是否越界
+    total = len(item_list)
+    if total == 0 or offset >= total:
+        return app_err_p(Error.NO_MORE_DATA, {'total': total, 'count': 0})
+
+    # 读取指定位置和数量的利用信息
+    if count > total - offset:
+        count = total - offset
+    item_list = item_list[offset: offset + count]
+    SysLog.success('查询漏洞', '成功查询漏洞信息，查询到漏洞信息总数={}'.format(len(item_list)))
+    return app_ok_p({'total': total, 'count': len(item_list), 'items': item_list})
+
+
+def search(request):
+    offset = req_get_param_int(request, 'offset')
+    count = req_get_param_int(request, 'count')
+    value = req_get_param(request, 'value')
+
+    # 查找利用信息
+    result_cursor = exploit_db.search(value)
     item_list = list(result_cursor)
 
     # 获取信息总数，并判断指定偏移量是否越界
@@ -178,11 +204,12 @@ def poc_query(request):
 def poc_fetch(request):
     edb_id = req_get_param(request, 'edb_id')
     doc = exploit_db.fetch(edb_id)
-    item = edb_pocs.fetch(edb_id)
-    if item is None or doc is None:
+    poc = edb_pocs.fetch(edb_id)
+    if poc is None or doc is None:
         return app_err(Error.EDB_POC_NOT_FOUND)
     SysLog.success('提取POC', '成功提取漏洞的POC（漏洞ID={}）'.format(edb_id))
-    return app_ok_p(dict(doc, **item))
+    doc['poc'] = poc
+    return app_ok_p(doc)
 
 
 def poc_add(request):
@@ -252,7 +279,7 @@ def poc_search(request):
     value = req_get_param(request, 'value')
 
     # 查找利用信息
-    result_cursor = exploit_db.search('db', value)
+    result_cursor = exploit_db.search(value)
     item_list = list(result_cursor)
 
     # 获取信息总数，并判断指定偏移量是否越界
