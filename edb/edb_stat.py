@@ -52,7 +52,7 @@ class EdbStat:
         pipeline = [
             {"$unwind": "$type"},
             {"$group": {"_id": "$type", "count": {"$sum": 1}}},
-            {"$sort": SON([("_id", 1)])},
+            {"$sort": SON([("count", -1)])},
         ]
 
         result = edb_info_col.aggregate(pipeline)

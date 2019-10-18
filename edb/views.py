@@ -205,7 +205,7 @@ def poc_fetch(request):
     edb_id = req_get_param(request, 'edb_id')
     doc = exploit_db.fetch(edb_id)
     poc = edb_pocs.fetch(edb_id)
-    if poc is None or doc is None:
+    if doc is None:
         return app_err(Error.EDB_POC_NOT_FOUND)
     SysLog.success('提取POC', '成功提取漏洞的POC（漏洞ID={}）'.format(edb_id))
     doc['poc'] = poc

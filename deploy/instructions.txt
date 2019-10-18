@@ -26,9 +26,11 @@
     deactivate
 
 7. 部署环境中安装项目依赖
-    （1）首先按照附录1的说明，升级系统的SQLite
-	（2）在上述wwwroot目录下，执行：
-	    pip3 install -r deploy/dependencies.txt
+    （1）按上述方式进入虚拟环境
+    （2）按照附录1的说明，升级系统的SQLite
+	（3）在上述wwwroot目录下，执行：
+	    pip3 install bson certifi chardet Django django-cors-headers idna pymongo PyMySQL pypi python-dateutil pytz requests six sqlparse urllib3 uWSGI wheel xlrd xlwt
+	    废弃：pip3 install -r deploy/dependencies.txt
 	    linux系统遇到需要pywin32的依赖时，跳过该依赖安装
 
 8. 安装uwsgi
