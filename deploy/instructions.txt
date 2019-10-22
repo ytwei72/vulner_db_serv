@@ -38,7 +38,10 @@
 
 9. 启动django项目
     建议采用uwsgi启动服务：
+        http协议：
         nohup uwsgi --ini deploy/uwsgi.ini &  (需要事先修改 uwsgi.ini)
+        https协议：
+        nohup uwsgi --ini deploy/uwsgissl.ini &  (需要事先修改 uwsgi.ini)
         停止uwsgi时采用 uwsgi --stop deploy/uwsgi.pid
     或者采用：
         uwsgi --http :10091 --chdir /usr/local/deploy/pyweb/wwwroot --wsgi-file vulner_db_serv/wsgi.py --master --processes 4 --threads 2
