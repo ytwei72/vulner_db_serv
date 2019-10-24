@@ -1,3 +1,4 @@
+import time
 from common.response import app_ok_p, app_err_p, app_ok, app_err
 from common.error_code import Error
 from common.utils.http_request import req_get_param_int, req_get_param, req_post_param, req_post_param_int, \
@@ -95,6 +96,8 @@ def search(request):
     if count > total - offset:
         count = total - offset
     item_list = item_list[offset: offset + count]
+    # 为性能测试中降低CPU使用率，小段延时
+    time.sleep(0.5)
     SysLog.success('搜索漏洞', '成功搜索漏洞信息，查询到漏洞信息总数={}'.format(len(item_list)))
     return app_ok_p({'total': total, 'count': len(item_list), 'items': item_list})
 
@@ -124,6 +127,10 @@ def add(request):
             'author': {'id': author_id, 'name': author}, 'type': {'id': type_id, 'name': type},
             'platform': {'id': platform_id, 'platform': platform}, 'edb_id': edb_id}
     result = exploit_db.add(item)
+
+    # 为性能测试中降低CPU使用率，小段延时
+    time.sleep(0.5)
+
     # 本版本不检查成功与否
     SysLog.success('新建漏洞', '成功添加漏洞信息，漏洞ID={}'.format(edb_id))
     return app_ok_p({'edb_id': edb_id, 'customized': 1, 'date_published': item['date_published']})
