@@ -97,7 +97,7 @@ def search(request):
         count = total - offset
     item_list = item_list[offset: offset + count]
     # 为性能测试中降低CPU使用率，小段延时
-    time.sleep(0.5)
+    time.sleep(1.0)
     SysLog.success('搜索漏洞', '成功搜索漏洞信息，查询到漏洞信息总数={}'.format(len(item_list)))
     return app_ok_p({'total': total, 'count': len(item_list), 'items': item_list})
 
@@ -129,7 +129,7 @@ def add(request):
     result = exploit_db.add(item)
 
     # 为性能测试中降低CPU使用率，小段延时
-    time.sleep(0.5)
+    time.sleep(1.0)
 
     # 本版本不检查成功与否
     SysLog.success('新建漏洞', '成功添加漏洞信息，漏洞ID={}'.format(edb_id))
@@ -316,8 +316,11 @@ def poc_download(request):
         return app_err(Error.EDB_POC_NOT_FOUND)
 
     file_name = item['aliases']
+    # 对文本类型的文件名称增加txt后缀
+    download_name = SysUtils.add_plain_text_file_suffix(file_name)
+    # 设置响应内容的文件下载参数
     response = HttpResponse(item['content'], content_type='application/octet-stream')
-    response['Content-Disposition'] = 'attachment;filename="%s"' % (urlquote(file_name))
+    response['Content-Disposition'] = 'attachment;filename="%s"' % (urlquote(download_name))
     SysLog.success('下载POC', '成功下载POC文件，漏洞ID={}'.format(edb_id))
     return response
 
@@ -329,6 +332,8 @@ def max_id(request):
 
 def export_excel(request):
     id_list_str = req_get_param(request, 'id_list')
+    start_index = req_get_param(request, 'start_index')
+    start_index = StrUtils.to_int(start_index, 1)
     # ID号区间查询因为需要先在整个集合把edb_id转为整数，速度较慢，关闭不用
     # id_from = req_get_param(request, 'id_from')
     # id_to = req_get_param(request, 'id_to')
@@ -341,7 +346,7 @@ def export_excel(request):
     else:
         item_list = exploit_db.query_all()
 
-    file_name = XlsUtils.write_excel(item_list)
+    file_name = XlsUtils.write_excel(item_list, start_index)
     xls_file = open(file_name, "rb")
     response = FileResponse(xls_file)
     response['Content-Type'] = 'application/octet-stream'

@@ -75,6 +75,14 @@ class SysUtils:
         return suffix
 
     @staticmethod
+    def add_plain_text_file_suffix(file_path):
+        not_plain_text_suffixs = ['docx', 'eml', 'exe', 'gz', 'ics', 'mid', 'pdf', 'pm', 'rar', 'sys', 'xsl', 'zip', ]
+        suffix = SysUtils.parse_file_suffix(file_path)
+        if suffix in not_plain_text_suffixs:
+            return file_path + '.bin'
+        return file_path + '.txt'
+
+    @staticmethod
     def parse_file_type(file_path):
         suffix = SysUtils.parse_file_suffix(file_path)
         template = [['as', 'Action Script'], ['asc', 'Active Server Pages'], ['asm', 'ASM'],

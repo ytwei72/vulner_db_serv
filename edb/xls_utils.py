@@ -48,7 +48,7 @@ class XlsUtils:
         return
 
     @staticmethod
-    def write_sheet(file_name, data):
+    def write_sheet_old(file_name, data):
         # 创建工作簿
         book = xlwt.Workbook()
         # 创建工作表单
@@ -79,7 +79,36 @@ class XlsUtils:
         return
 
     @staticmethod
-    def write_excel(data):
+    def write_sheet(file_name, data, start_index):
+        # 创建工作簿
+        book = xlwt.Workbook()
+        # 创建工作表单
+        sheet = book.add_sheet('漏洞特征库', cell_overwrite_ok=True)
+        # 初始化表头
+        col_params = [['序号', 14], ['漏洞编号', 14], ['漏洞名称', 80], ['发布者', 30], ['漏洞类型', 20],
+                      ['平台', 20], ['发布时间', 26], ]
+        XlsUtils.init_cols(sheet, col_params)
+        # 数据为空时，保存无数据的空表文件，返回
+        if not isinstance(data, list) or len(data) == 0:
+            book.save(file_name)
+            return
+
+        cell_style = XlsUtils.set_style('Times New Roman', 280, False)
+        for index, item in enumerate(data):
+            row = index + 1
+            sheet.write(row, 0, start_index + index, cell_style)
+            sheet.write(row, 1, item['edb_id'], cell_style)
+            sheet.write(row, 2, item['description'][1], cell_style)
+            sheet.write(row, 3, item['author']['name'], cell_style)
+            sheet.write(row, 4, item['type']['name'], cell_style)
+            sheet.write(row, 5, item['platform']['platform'], cell_style)
+            sheet.write(row, 6, item['date_published'], cell_style)
+            # row += 1
+        book.save(file_name)
+        return
+
+    @staticmethod
+    def write_excel(data, start_index):
         file_name = SysUtils.get_now_time().strftime('%Y%m%d %H%M%S') + '.xls'
-        XlsUtils.write_sheet(file_name, data)
+        XlsUtils.write_sheet(file_name, data, start_index)
         return file_name
