@@ -1,4 +1,6 @@
 
+本项目是漏洞利用系统的后端，python Django框架，实现漏洞库的管理接口。
+
 说明：
 假设django项目在windows系统开发，python环境的命令是python和pip；部署到linux系统，命令是python3和pip3
 
